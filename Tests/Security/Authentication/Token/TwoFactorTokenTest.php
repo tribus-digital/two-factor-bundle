@@ -63,8 +63,38 @@ class TwoFactorTokenTest extends TestCase
     /**
      * @test
      */
+    public function isTwoFactorProviderPrepared_isPrepared_returnTrue(): void
+    {
+        $this->twoFactorToken->setTwoFactorProviderPrepared('provider1');
+        $this->assertTrue($this->twoFactorToken->isTwoFactorProviderPrepared('provider1'));
+    }
+
+    /**
+     * @test
+     */
+    public function isTwoFactorProviderPrepared_isNotPrepared_returnFalse(): void
+    {
+        $this->twoFactorToken->setTwoFactorProviderPrepared('provider1');
+        $this->assertFalse($this->twoFactorToken->isTwoFactorProviderPrepared('provider2'));
+    }
+
+    /**
+     * @test
+     */
+    public function setTwoFactorProviderComplete_wasNotPrepared_throwsException(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('was not prepared');
+
+        $this->twoFactorToken->setTwoFactorProviderComplete('provider1');
+    }
+
+    /**
+     * @test
+     */
     public function setTwoFactorProviderComplete_completeProvider_continueWithNextProvider(): void
     {
+        $this->twoFactorToken->setTwoFactorProviderPrepared('provider1');
         $this->twoFactorToken->setTwoFactorProviderComplete('provider1');
         $this->assertEquals('provider2', $this->twoFactorToken->getCurrentTwoFactorProvider());
     }
@@ -75,6 +105,8 @@ class TwoFactorTokenTest extends TestCase
     public function setTwoFactorProviderComplete_unknownProvider_throwUnknownTwoFactorProviderException(): void
     {
         $this->expectException(UnknownTwoFactorProviderException::class);
+
+        $this->twoFactorToken->setTwoFactorProviderPrepared('unknownProvider');
         $this->twoFactorToken->setTwoFactorProviderComplete('unknownProvider');
     }
 
@@ -83,7 +115,9 @@ class TwoFactorTokenTest extends TestCase
      */
     public function allTwoFactorProvidersAuthenticated_notComplete_returnFalse(): void
     {
+        $this->twoFactorToken->setTwoFactorProviderPrepared('provider1');
         $this->twoFactorToken->setTwoFactorProviderComplete('provider1');
+
         $this->assertFalse($this->twoFactorToken->allTwoFactorProvidersAuthenticated());
     }
 
@@ -92,8 +126,12 @@ class TwoFactorTokenTest extends TestCase
      */
     public function allTwoFactorProvidersAuthenticated_allComplete_returnTrue(): void
     {
+        $this->twoFactorToken->setTwoFactorProviderPrepared('provider1');
         $this->twoFactorToken->setTwoFactorProviderComplete('provider1');
+
+        $this->twoFactorToken->setTwoFactorProviderPrepared('provider2');
         $this->twoFactorToken->setTwoFactorProviderComplete('provider2');
+
         $this->assertTrue($this->twoFactorToken->allTwoFactorProvidersAuthenticated());
     }
 }

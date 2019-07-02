@@ -34,6 +34,11 @@ class TwoFactorToken implements TwoFactorTokenInterface
      */
     private $twoFactorProviders;
 
+    /**
+     * @var bool[]
+     */
+    private $preparedProviders = [];
+
     public function __construct(TokenInterface $authenticatedToken, ?string $credentials, string $providerKey, array $twoFactorProviders)
     {
         $this->authenticatedToken = $authenticatedToken;
@@ -93,8 +98,22 @@ class TwoFactorToken implements TwoFactorTokenInterface
         return reset($this->twoFactorProviders) ?? null;
     }
 
+    public function isTwoFactorProviderPrepared(string $providerName): bool
+    {
+        return $this->preparedProviders[$providerName] ?? false;
+    }
+
+    public function setTwoFactorProviderPrepared(string $providerName): void
+    {
+        $this->preparedProviders[$providerName] = true;
+    }
+
     public function setTwoFactorProviderComplete(string $providerName): void
     {
+        if (!$this->isTwoFactorProviderPrepared($providerName)) {
+            throw new \LogicException('Two-factor provider "'.$providerName.'" cannot be completed because it was not prepared.');
+        }
+
         $this->removeTwoFactorProvider($providerName);
     }
 
@@ -129,12 +148,12 @@ class TwoFactorToken implements TwoFactorTokenInterface
 
     public function serialize()
     {
-        return serialize([$this->authenticatedToken, $this->credentials, $this->providerKey, $this->attributes, $this->twoFactorProviders]);
+        return serialize([$this->authenticatedToken, $this->credentials, $this->providerKey, $this->attributes, $this->twoFactorProviders, $this->preparedProviders]);
     }
 
     public function unserialize($serialized)
     {
-        list($this->authenticatedToken, $this->credentials, $this->providerKey, $this->attributes, $this->twoFactorProviders) = unserialize($serialized);
+        list($this->authenticatedToken, $this->credentials, $this->providerKey, $this->attributes, $this->twoFactorProviders, $this->preparedProviders) = unserialize($serialized);
     }
 
     public function getAttributes()

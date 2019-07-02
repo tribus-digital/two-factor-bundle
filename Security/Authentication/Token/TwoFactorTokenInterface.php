@@ -35,6 +35,22 @@ interface TwoFactorTokenInterface extends TokenInterface
     public function getCurrentTwoFactorProvider(): ?string;
 
     /**
+     * Check if a two-factor provider has completed preparation. The provider's alias is passed as the argument.
+     *
+     * @param string $providerName
+     *
+     * @return bool
+     */
+    public function isTwoFactorProviderPrepared(string $providerName): bool;
+
+    /**
+     * Remember when a two-factor provider has completed preparation. The provider's alias is passed as the argument.
+     *
+     * @param string $providerName
+     */
+    public function setTwoFactorProviderPrepared(string $providerName): void;
+
+    /**
      * Flag a two-factor provider as complete. The provider's alias is passed as the argument.
      *
      * @param string $providerName
