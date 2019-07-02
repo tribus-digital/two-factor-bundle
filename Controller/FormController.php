@@ -63,6 +63,8 @@ class FormController
         $token = $this->getTwoFactorToken();
         $this->setPreferredProvider($request, $token);
 
+        //Dispatch require event?
+
         $providerName = $token->getCurrentTwoFactorProvider();
         $renderer = $this->providerRegistry->getProvider($providerName)->getFormRenderer();
         $templateVars = $this->getTemplateVars($request, $token);
@@ -86,6 +88,7 @@ class FormController
         if ($preferredProvider) {
             try {
                 $token->preferTwoFactorProvider($preferredProvider);
+                //TODO: dispatch prepare here
             } catch (UnknownTwoFactorProviderException $e) {
                 // Bad user input
             }

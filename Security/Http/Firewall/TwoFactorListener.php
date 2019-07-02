@@ -163,12 +163,11 @@ class TwoFactorListener implements ListenerInterface
             return;
         }
 
-        if (!$this->isAuthFormRequest($request)) {
+        if ($this->isAuthFormRequest($request)) {
             $this->dispatchTwoFactorAuthenticationEvent(TwoFactorAuthenticationEvents::REQUIRE, $request, $currentToken);
+        } else {
             $response = $this->authenticationRequiredHandler->onAuthenticationRequired($request, $currentToken);
             $event->setResponse($response);
-
-            return;
         }
     }
 
@@ -227,8 +226,6 @@ class TwoFactorListener implements ListenerInterface
 
         // When it's still a TwoFactorToken, keep showing the auth form
         if ($token instanceof TwoFactorTokenInterface) {
-            $this->dispatchTwoFactorAuthenticationEvent(TwoFactorAuthenticationEvents::REQUIRE, $request, $token);
-
             return $this->authenticationRequiredHandler->onAuthenticationRequired($request, $token);
         }
 
