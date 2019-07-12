@@ -15,8 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class TwoFactorProviderPreparationListenerTest extends TestCase
 {
-    const FIREWALL_NAME = 'firewallName';
-    const CURRENT_PROVIDER_NAME = 'currentProviderName';
+    private const FIREWALL_NAME = 'firewallName';
+    private const CURRENT_PROVIDER_NAME = 'currentProviderName';
 
     /**
      * @var MockObject|TwoFactorProviderRegistry
